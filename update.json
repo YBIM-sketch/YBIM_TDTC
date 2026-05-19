@@ -1,0 +1,5 @@
+{
+  "Version": "0.1.2",
+  "DownloadUrl": "https://github.com/YBIM-sketch/YBIM_TDTC/releases/download/v0.1.2/YBIM_TDTC_v0.1.2.zip",
+  "Changelog": "- Nâng cấp toàn diện giao diện Sleek Mode & phông chữ hiện đại.\n- Hỗ trợ chọn màu sắc nhấn động (Violet, Blue, Emerald, Amber, Crimson).\n- Tích hợp bộ nâng cấp tự động Auto-Updater qua Cloud GitHub."
+}
