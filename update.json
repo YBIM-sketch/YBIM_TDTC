@@ -1,5 +1,5 @@
 {
-  "Version": "0.1.2",
-  "DownloadUrl": "https://github.com/YBIM-sketch/YBIM_TDTC/releases/download/v0.1.2/YBIM_TDTC_v0.1.2.zip",
-  "Changelog": "- Nâng cấp toàn diện giao diện Sleek Mode & phông chữ hiện đại.\n- Hỗ trợ chọn màu sắc nhấn động (Violet, Blue, Emerald, Amber, Crimson).\n- Tích hợp bộ nâng cấp tự động Auto-Updater qua Cloud GitHub."
+  "Version": "0.1.3",
+  "DownloadUrl": "https://github.com/YBIM-sketch/YBIM_TDTC/releases/download/v0.1.3/YBIM_TDTC_v0.1.3.zip",
+  "Changelog": "- Nâng cấp toàn diện bộ xuất mã LISP AutoCAD chuyên nghiệp vẽ biểu đồ tiến độ Gantt (đường găng, liên kết logic, mốc tiến độ) và 4 biểu đồ tài nguyên xếp chồng (Nhân công, Máy thi công, Dòng tiền lũy kế S-curve, Vật tư).\n- Tích hợp thanh công cụ nạp nhanh danh mục tài nguyên tự động từ các file Excel (Nhân công, Máy móc, Vật tư, Bảng đơn giá) vô cùng tiện lợi.\n- Tối ưu hóa giao diện Ribbon Sleek Mode, bổ sung nút Sao chép thuộc tính (Format Painter), hỗ trợ tự động căn lề thụt đầu dòng."
 }
