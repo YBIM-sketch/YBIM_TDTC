@@ -1,5 +1,5 @@
 {
-  "Version": "0.1.3",
-  "DownloadUrl": "https://github.com/YBIM-sketch/YBIM_TDTC/releases/download/v0.1.3/YBIM_TDTC_v0.1.3.zip",
-  "Changelog": "- Nâng cấp toàn diện bộ xuất mã LISP AutoCAD chuyên nghiệp vẽ biểu đồ tiến độ Gantt (đường găng, liên kết logic, mốc tiến độ) và 4 biểu đồ tài nguyên xếp chồng (Nhân công, Máy thi công, Dòng tiền lũy kế S-curve, Vật tư).\n- Tích hợp thanh công cụ nạp nhanh danh mục tài nguyên tự động từ các file Excel (Nhân công, Máy móc, Vật tư, Bảng đơn giá) vô cùng tiện lợi.\n- Tối ưu hóa giao diện Ribbon Sleek Mode, bổ sung nút Sao chép thuộc tính (Format Painter), hỗ trợ tự động căn lề thụt đầu dòng."
+  "Version": "0.1.4",
+  "DownloadUrl": "https://github.com/YBIM-sketch/YBIM_TDTC/releases/download/v0.1.4/YBIM_TDTC_v0.1.4.zip",
+  "Changelog": "- Tích hợp thuật toán AI di truyền (Genetic Algorithm) san bằng tài nguyên tự động với 3 phương án tối ưu song song (Máy móc, Nhân công, Vật tư/Dòng tiền).\n- Nâng cấp toàn diện bộ xuất mã LISP AutoCAD chuyên nghiệp vẽ biểu đồ tiến độ Gantt và 4 biểu đồ tài nguyên xếp chồng.\n- Tích hợp thanh công cụ nạp nhanh danh mục tài nguyên tự động từ các file Excel.\n- Tối ưu hóa giao diện Ribbon Sleek Mode, bổ sung nút Sao chép thuộc tính (Format Painter)."
 }
