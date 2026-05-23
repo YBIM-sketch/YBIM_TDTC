@@ -1,5 +1,5 @@
 {
-  "Version": "0.1.4",
-  "DownloadUrl": "https://github.com/YBIM-sketch/YBIM_TDTC/releases/download/v0.1.4/YBIM_TDTC_v0.1.4.zip",
-  "Changelog": "- Tích hợp thuật toán AI di truyền (Genetic Algorithm) san bằng tài nguyên tự động với 3 phương án tối ưu song song (Máy móc, Nhân công, Vật tư/Dòng tiền).\n- Nâng cấp toàn diện bộ xuất mã LISP AutoCAD chuyên nghiệp vẽ biểu đồ tiến độ Gantt và 4 biểu đồ tài nguyên xếp chồng.\n- Tích hợp thanh công cụ nạp nhanh danh mục tài nguyên tự động từ các file Excel.\n- Tối ưu hóa giao diện Ribbon Sleek Mode, bổ sung nút Sao chép thuộc tính (Format Painter)."
+  "Version": "0.1.5",
+  "DownloadUrl": "https://github.com/YBIM-sketch/YBIM_TDTC/releases/download/v0.1.5/YBIM_TDTC_v0.1.5.zip",
+  "Changelog": "- Đồng bộ hóa toàn diện dải Ribbon và thanh tiêu đề Window Chrome qua ControlzEx ThemeManager trên 4 chủ đề (Colorful, White, Dark Gray, Black), chống tàng hình chữ.\n- Thiết kế lại Custom ComboBox ControlTemplate, tự động đổi màu nền và màu chữ theo chủ đề hệ thống, loại bỏ triệt để nền trắng mặc định của Windows.\n- Tái quy hoạch thanh Ribbon tinh gọn 15.6 inch: Rút gọn từ 4 Tab lớn xuống 2 Tab nghiệp vụ chính (Menu Task & Bar Style) tối ưu không gian hiển thị.\n- Thiết kế Menu Tùy chọn (Backstage) mới dạng Tab: Tích hợp Cài đặt hệ thống, Thiết lập lịch nghỉ, Check Orphan, thông tin Bản quyền và Trung tâm Hỗ trợ kỹ thuật (Zalo, Youtube, Github...)."
 }
