@@ -1,0 +1,1633 @@
+<!DOCTYPE html>
+<html lang="vi" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YBIM TDTC - Hệ thống Quản lý Tiến độ & Tài nguyên BIM 5D tối ưu AI</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Lucide Icons via CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+        :root {
+            --bg-page: #0B0F19;
+            --bg-card: rgba(17, 24, 39, 0.7);
+            --bg-card-hover: rgba(31, 41, 55, 0.8);
+            --border-color: rgba(31, 41, 55, 0.6);
+            --border-hover: rgba(124, 58, 237, 0.4);
+            --text-primary: #F3F4F6;
+            --text-secondary: #9CA3AF;
+            --accent-primary: #7C3AED;      /* Violet */
+            --accent-secondary: #06B6D4;    /* Cyan */
+            --accent-success: #10B981;      /* Emerald */
+            --accent-danger: #EF4444;       /* Red */
+            --accent-warning: #F59E0B;      /* Amber */
+            --font-outfit: 'Outfit', sans-serif;
+            --font-inter: 'Inter', sans-serif;
+            --shadow-glow: 0 0 25px rgba(124, 58, 237, 0.2);
+            --shadow-cyan: 0 0 25px rgba(6, 182, 212, 0.2);
+        }
+
+        .light-mode {
+            --bg-page: #F3F4F6;
+            --bg-card: rgba(255, 255, 255, 0.85);
+            --bg-card-hover: #FFFFFF;
+            --border-color: rgba(209, 213, 219, 0.8);
+            --border-hover: rgba(124, 58, 237, 0.5);
+            --text-primary: #111827;
+            --text-secondary: #4B5563;
+            --shadow-glow: 0 10px 30px rgba(124, 58, 237, 0.1);
+            --shadow-cyan: 0 10px 30px rgba(6, 182, 212, 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            transition: background-color 0.3s, border-color 0.3s, color 0.3s;
+        }
+
+        body {
+            background-color: var(--bg-page);
+            color: var(--text-primary);
+            font-family: var(--font-inter);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* Ambient Background Glows */
+        .glow-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(140px);
+            z-index: -1;
+            opacity: 0.4;
+            pointer-events: none;
+        }
+        .orb-1 {
+            width: 400px;
+            height: 400px;
+            background: var(--accent-primary);
+            top: -100px;
+            right: -50px;
+        }
+        .orb-2 {
+            width: 500px;
+            height: 500px;
+            background: var(--accent-secondary);
+            top: 400px;
+            left: -100px;
+        }
+        .orb-3 {
+            width: 300px;
+            height: 300px;
+            background: var(--accent-success);
+            bottom: -50px;
+            right: 100px;
+        }
+
+        /* Glassmorphism Classes */
+        .glass-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+        .glass-card:hover {
+            border-color: var(--border-hover);
+            box-shadow: var(--shadow-glow);
+        }
+
+        /* Typography */
+        h1, h2, h3, h4, .title-font {
+            font-family: var(--font-outfit);
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-page);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-primary);
+        }
+
+        /* Header Navigation */
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background: rgba(11, 15, 25, 0.75);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-color);
+        }
+        .header-container {
+            max-width: 1300px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+            font-family: var(--font-outfit);
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #FFFFFF;
+        }
+        .logo-text {
+            background: linear-gradient(135deg, #A78BFA 0%, #22D3EE 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .logo-badge {
+            background: var(--accent-primary);
+            color: #FFFFFF;
+            font-size: 0.7rem;
+            padding: 0.15rem 0.5rem;
+            border-radius: 9999px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .nav-links {
+            display: flex;
+            gap: 0.5rem;
+        }
+        .nav-btn {
+            background: transparent;
+            border: 1px solid transparent;
+            color: var(--text-secondary);
+            font-family: var(--font-outfit);
+            font-weight: 600;
+            font-size: 0.95rem;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .nav-btn:hover, .nav-btn.active {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.05);
+            border-color: var(--border-color);
+        }
+        .nav-btn.active {
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 10px rgba(124, 58, 237, 0.15);
+        }
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .btn-theme {
+            background: none;
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        .btn-theme:hover {
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+        }
+        .btn-github {
+            background: linear-gradient(135deg, var(--accent-primary) 0%, #6366F1 100%);
+            color: #FFFFFF;
+            font-family: var(--font-outfit);
+            font-weight: 600;
+            padding: 0.6rem 1.2rem;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            box-shadow: var(--shadow-glow);
+        }
+        .btn-github:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 35px rgba(124, 58, 237, 0.4);
+        }
+
+        /* Container & Tabs Layout */
+        main {
+            max-width: 1300px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+            min-height: 80vh;
+        }
+        .tab-panel {
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+        .tab-panel.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* HOME TAB (Landing page) */
+        .hero {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 3rem;
+            padding: 3rem 0;
+        }
+        .hero-content {
+            flex: 1;
+        }
+        .hero-title {
+            font-size: 3.5rem;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, #FFFFFF 30%, #9CA3AF 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .hero-desc {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            max-width: 580px;
+        }
+        .hero-actions {
+            display: flex;
+            gap: 1rem;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-primary) 0%, #6366F1 100%);
+            color: #FFFFFF;
+            font-family: var(--font-outfit);
+            font-weight: 600;
+            padding: 0.8rem 1.8rem;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            box-shadow: var(--shadow-glow);
+        }
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            font-family: var(--font-outfit);
+            font-weight: 600;
+            padding: 0.8rem 1.8rem;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: var(--text-secondary);
+        }
+        .hero-image {
+            flex: 1;
+            position: relative;
+        }
+        .hero-img-container {
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            background: #111827;
+            position: relative;
+        }
+        .hero-img-container img {
+            width: 100%;
+            height: auto;
+            display: block;
+            object-fit: cover;
+        }
+        .hero-img-overlay {
+            position: absolute;
+            inset: 0;
+            box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.6);
+            pointer-events: none;
+        }
+
+        /* Features Section */
+        .section-title {
+            text-align: center;
+            font-size: 2.2rem;
+            margin: 4rem 0 1.5rem 0;
+        }
+        .section-desc {
+            text-align: center;
+            color: var(--text-secondary);
+            max-width: 700px;
+            margin: 0 auto 3rem auto;
+        }
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 4rem;
+        }
+        .feat-card {
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .feat-icon-box {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .feat-card:nth-child(1) .feat-icon-box { background: rgba(124, 58, 237, 0.15); color: var(--accent-primary); }
+        .feat-card:nth-child(2) .feat-icon-box { background: rgba(6, 182, 212, 0.15); color: var(--accent-secondary); }
+        .feat-card:nth-child(3) .feat-icon-box { background: rgba(16, 185, 129, 0.15); color: var(--accent-success); }
+        .feat-card:nth-child(4) .feat-icon-box { background: rgba(245, 158, 11, 0.15); color: var(--accent-warning); }
+        .feat-card:nth-child(5) .feat-icon-box { background: rgba(239, 68, 68, 0.15); color: var(--accent-danger); }
+        .feat-card:nth-child(6) .feat-icon-box { background: rgba(99, 102, 241, 0.15); color: #6366F1; }
+
+        .feat-title {
+            font-size: 1.3rem;
+        }
+        .feat-desc {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        /* LIVE CPM SIMULATOR */
+        .simulator-section {
+            margin: 5rem 0;
+            padding: 3rem;
+        }
+        .sim-container {
+            display: flex;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        .sim-controls {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .sim-visual {
+            flex: 1.5;
+            background: #0B0F19;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            min-height: 400px;
+        }
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+        .input-group label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+        .input-group input, .input-group select {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 0.6rem;
+            color: #FFFFFF;
+            font-family: var(--font-inter);
+            font-size: 0.9rem;
+        }
+        .input-group input:focus {
+            border-color: var(--accent-primary);
+            outline: none;
+        }
+        .btn-add {
+            background: var(--accent-primary);
+            color: #FFFFFF;
+            border: none;
+            padding: 0.6rem;
+            border-radius: 8px;
+            font-family: var(--font-outfit);
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        .btn-add:hover {
+            opacity: 0.9;
+        }
+        .task-list-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+            margin-top: 1rem;
+        }
+        .task-list-table th, .task-list-table td {
+            padding: 0.5rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .task-list-table th {
+            color: var(--text-secondary);
+        }
+        .critical-badge {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--accent-danger);
+            padding: 0.1rem 0.4rem;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 0.75rem;
+        }
+        .non-critical-badge {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--accent-success);
+            padding: 0.1rem 0.4rem;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 0.75rem;
+        }
+        .btn-del-task {
+            background: none;
+            border: none;
+            color: var(--accent-danger);
+            cursor: pointer;
+        }
+
+        /* WIKI & DISCUSSIONS TAB */
+        .wiki-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 2rem;
+        }
+        .wiki-grid {
+            display: grid;
+            grid-template-columns: 1fr 3fr;
+            gap: 2rem;
+        }
+        .wiki-sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .wiki-menu-item {
+            text-align: left;
+            background: none;
+            border: 1px solid transparent;
+            color: var(--text-secondary);
+            font-family: var(--font-outfit);
+            font-weight: 500;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        .wiki-menu-item:hover, .wiki-menu-item.active {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.05);
+        }
+        .wiki-menu-item.active {
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+            background: rgba(124, 58, 237, 0.05);
+        }
+        .wiki-content {
+            padding: 2.5rem;
+            min-height: 500px;
+        }
+        .markdown-body h2 {
+            font-size: 1.8rem;
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.5rem;
+        }
+        .markdown-body h3 {
+            font-size: 1.3rem;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+        }
+        .markdown-body p {
+            margin-bottom: 1rem;
+            color: var(--text-secondary);
+        }
+        .markdown-body ul, .markdown-body ol {
+            margin-left: 2rem;
+            margin-bottom: 1rem;
+            color: var(--text-secondary);
+        }
+        .markdown-body li {
+            margin-bottom: 0.4rem;
+        }
+        .callout-box {
+            border-left: 4px solid var(--accent-primary);
+            background: rgba(124, 58, 237, 0.05);
+            padding: 1rem 1.5rem;
+            border-radius: 0 8px 8px 0;
+            margin: 1.5rem 0;
+        }
+        .callout-box.warning {
+            border-color: var(--accent-warning);
+            background: rgba(245, 158, 11, 0.05);
+        }
+        .callout-box.tip {
+            border-color: var(--accent-success);
+            background: rgba(16, 185, 129, 0.05);
+        }
+        .callout-title {
+            font-weight: 700;
+            font-family: var(--font-outfit);
+            margin-bottom: 0.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .code-block {
+            background: #090D16;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 0.9rem;
+            overflow-x: auto;
+            margin: 1.5rem 0;
+            color: #A7F3D0;
+            position: relative;
+        }
+        .btn-copy {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            cursor: pointer;
+        }
+        .btn-copy:hover {
+            color: #FFFFFF;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Footer */
+        footer {
+            border-top: 1px solid var(--border-color);
+            padding: 3rem 0;
+            margin-top: 5rem;
+            background: rgba(11, 15, 25, 0.5);
+        }
+        .footer-container {
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .footer-text {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        .footer-socials {
+            display: flex;
+            gap: 1rem;
+        }
+        .social-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.9rem;
+        }
+        .social-link:hover {
+            color: var(--accent-primary);
+        }
+
+        /* SPECKLE 3D DEMO INTERACTIVE WIDGET */
+        .speckle-demo-box {
+            display: flex;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+            background: #090D16;
+            margin: 2rem 0;
+            height: 350px;
+        }
+        .speckle-scene {
+            flex: 2;
+            position: relative;
+            background: radial-gradient(circle, #1F2937 0%, #0F172A 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .speckle-props {
+            flex: 1;
+            border-left: 1px solid var(--border-color);
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            overflow-y: auto;
+            background: rgba(17, 24, 39, 0.9);
+        }
+        .bim-element-mockup {
+            width: 100px;
+            height: 100px;
+            background: var(--accent-secondary);
+            border-radius: 8px;
+            transform: rotateX(45deg) rotateZ(45deg);
+            transition: all 0.3s;
+            cursor: pointer;
+            box-shadow: 0 10px 25px rgba(6, 182, 212, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        .bim-element-mockup.selected {
+            background: var(--accent-danger);
+            box-shadow: 0 0 30px rgba(239, 68, 68, 0.6);
+            transform: scale(1.1) rotateX(45deg) rotateZ(45deg);
+        }
+    </style>
+</head>
+<body>
+    <div class="glow-orb orb-1"></div>
+    <div class="glow-orb orb-2"></div>
+    <div class="glow-orb orb-3"></div>
+
+    <!-- Header Navigation -->
+    <header>
+        <div class="header-container">
+            <a href="#" class="logo">
+                <i data-lucide="layers" style="color: var(--accent-secondary)"></i>
+                <span>YBIM <span class="logo-text">TDTC</span></span>
+                <span class="logo-badge">v0.2.0-01 PRO</span>
+            </a>
+            <nav class="nav-links">
+                <button class="nav-btn active" onclick="switchTab('home')">
+                    <i data-lucide="home"></i> Trang Chủ
+                </button>
+                <button class="nav-btn" onclick="switchTab('manual')">
+                    <i data-lucide="book-open"></i> Hướng Dẫn Sử Dụng
+                </button>
+                <button class="nav-btn" onclick="switchTab('technical')">
+                    <i data-lucide="cpu"></i> Cẩm Nang Kỹ Thuật
+                </button>
+                <button class="nav-btn" onclick="switchTab('github-setup')">
+                    <i data-lucide="github"></i> Tích Hợp GitHub
+                </button>
+            </nav>
+            <div class="header-actions">
+                <button class="btn-theme" onclick="toggleTheme()" title="Đổi màu nền">
+                    <i data-lucide="sun" id="sun-icon" style="display:none"></i>
+                    <i data-lucide="moon" id="moon-icon"></i>
+                </button>
+                <a href="https://github.com/YBIM-sketch/YBIM_TDTC" target="_blank" class="btn-github">
+                    <i data-lucide="github"></i> GitHub Repo
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Grid -->
+    <main>
+        
+        <!-- 🏠 TAB 1: HOME LANDING PAGE -->
+        <div id="tab-home" class="tab-panel active">
+            <section class="hero">
+                <div class="hero-content">
+                    <h1 class="hero-title">BIM 5D & Tối Ưu Tiến Độ Với Sức Mạnh Trí Tuệ Nhân Tạo</h1>
+                    <p class="hero-desc">Phần mềm quản trị tiến độ thi công cao cấp thế hệ mới, tích hợp động cơ liên kết cấu kiện Speckle 3D, bóc tách tiên lượng tự động, san bằng tài nguyên bằng thuật toán Di truyền và nén tiến độ chi phí tối ưu (TCTO).</p>
+                    <div class="hero-actions">
+                        <button class="btn-primary" onclick="switchTab('manual')">
+                            <i data-lucide="play"></i> Khám phá tính năng
+                        </button>
+                        <a href="https://github.com/YBIM-sketch/YBIM_TDTC/releases" target="_blank" class="btn-secondary">
+                            <i data-lucide="download"></i> Tải về v0.2.0-01 (89.5 MB)
+                        </a>
+                    </div>
+                </div>
+                <div class="hero-image">
+                    <div class="hero-img-container">
+                        <img src="images/ybim_dashboard_mockup.png" alt="Giao diện phần mềm YBIM TDTC Pro">
+                        <div class="hero-img-overlay"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Features catalog -->
+            <h2 class="section-title">Các Phân Hệ Đột Phá Trên Bản Pro</h2>
+            <p class="section-desc">YBIM TDTC cung cấp bộ công cụ mạnh mẽ và khép kín giải quyết bài toán phức tạp trong lập và tối ưu tiến độ xây dựng.</p>
+            
+            <div class="features-grid">
+                <div class="glass-card feat-card">
+                    <div class="feat-icon-box"><i data-lucide="git-commit"></i></div>
+                    <h3 class="feat-title">Đường Găng CPM & Baseline Kép</h3>
+                    <p class="feat-desc">Tự động tính toán tiến độ theo phương pháp Sơ đồ mạng đường găng (CPM). Hỗ trợ chốt Baseline và vẽ đè Baseline mờ song song bên dưới tiến độ thực tế để đo kiểm sự chênh lệch tiến độ.</p>
+                </div>
+                <div class="glass-card feat-card">
+                    <div class="feat-icon-box"><i data-lucide="merge"></i></div>
+                    <h3 class="feat-title">San Bằng Tài Nguyên Bằng AI (GA)</h3>
+                    <p class="feat-desc">Thuật toán Di truyền (Genetic Algorithm) chạy đa luồng ngầm song song đề xuất 3 kịch bản: Ưu tiên tối ưu Peak máy thi công, Ưu tiên san bằng nhân công, và Trì hoãn dòng tiền nhàn rỗi.</p>
+                </div>
+                <div class="glass-card feat-card">
+                    <div class="feat-icon-box"><i data-lucide="box"></i></div>
+                    <h3 class="feat-title">Tích Hợp Speckle 3D BIM 5D QS</h3>
+                    <p class="feat-desc">Kết nối trực tiếp mô hình 3D trên đám mây. Tự động bóc tách tiên lượng thể tích bê tông, diện tích ván khuôn từ API GraphQL và đồng bộ hóa chi phí (NormalCost) cùng liên kết hình học WBS.</p>
+                </div>
+                <div class="glass-card feat-card">
+                    <div class="feat-icon-box"><i data-lucide="trending-up"></i></div>
+                    <h3 class="feat-title">Quản Trị Tài Chính EVM S-Curve</h3>
+                    <p class="feat-desc">Vẽ biểu đồ tích lũy dòng tiền S-Curve cao cấp gồm PV, EV, AC. Tự động tính toán các chỉ số sức khỏe dự án (CPI, SPI, CV, SV) và đưa ra 3 kịch bản dự báo tổng mức chi phí khi hoàn thành (EAC) chuẩn PMI.</p>
+                </div>
+                <div class="glass-card feat-card">
+                    <div class="feat-icon-box"><i data-lucide="shrink"></i></div>
+                    <h3 class="feat-title">Nén Tiến Độ Tối Ưu Chi Phí (TCTO)</h3>
+                    <p class="feat-desc">Giải thuật Greedy Crashing tự động nén tiến độ dự án bằng cách rút gọn thời gian các công tác trên đường găng có chi phí nén rẻ nhất, tối thiểu hóa chi phí phát sinh bổ sung cho chủ đầu tư.</p>
+                </div>
+                <div class="glass-card feat-card">
+                    <div class="feat-icon-box"><i data-lucide="shuffle"></i></div>
+                    <h3 class="feat-title">Tương Tác Đa Hệ Sinh Thái</h3>
+                    <p class="feat-desc">Đồng bộ 2 chiều thời gian thực với MS Project qua WebSocket. Nhập/Xuất Primavera P6 (.XER). Xuất mã LISP AutoCAD vẽ tiến độ tự động dàn Layout A3 in ấn chuẩn kỹ thuật.</p>
+                </div>
+            </div>
+
+            <!-- LIVE CPM PLAYGROUND -->
+            <div class="glass-card simulator-section">
+                <h2 class="title-font" style="font-size: 1.8rem; margin-bottom: 0.5rem; text-align: center;">🎮 Bộ Mô Phỏng CPM & Sơ Đồ Gantt SVG Trực Tuyến</h2>
+                <p style="color: var(--text-secondary); text-align: center; margin-bottom: 2rem; max-width: 800px; margin-left: auto; margin-right: auto;">
+                    Trải nghiệm trực quan thuật toán CPM (Critical Path Method) ngay trên trình duyệt. Thêm, sửa thời gian và mối quan hệ tiền nhiệm để xem hệ thống tự tính toán các ngày Khởi công Sớm/Muộn và phát hiện Đường Găng (màu đỏ)!
+                </p>
+                
+                <div class="sim-container">
+                    <div class="sim-controls">
+                        <h3 class="title-font">1. Nhập Công Tác</h3>
+                        <div class="input-group">
+                            <label>Tên Công Tác</label>
+                            <input type="text" id="sim-task-name" value="Lắp đặt cốt thép dầm sàn">
+                        </div>
+                        <div class="input-group">
+                            <label>Thời lượng (Ngày)</label>
+                            <input type="number" id="sim-task-duration" value="4" min="1">
+                        </div>
+                        <div class="input-group">
+                            <label>Công tác Tiền nhiệm (IDs cách nhau dấu phẩy, ví dụ: 1,2)</label>
+                            <input type="text" id="sim-task-preds" value="2">
+                        </div>
+                        <button class="btn-add" onclick="addNewSimTask()">
+                            <i data-lucide="plus"></i> Thêm vào Tiến độ
+                        </button>
+
+                        <h3 class="title-font" style="margin-top: 1rem;">Danh Sách Công Tác Hiện Có</h3>
+                        <div style="max-height: 200px; overflow-y: auto;">
+                            <table class="task-list-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Tên</th>
+                                        <th>Ngày</th>
+                                        <th>Predecessors</th>
+                                        <th>Slack</th>
+                                        <th>Đường găng</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="sim-task-tbody">
+                                    <!-- Rendered dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <div class="sim-visual">
+                        <h3 class="title-font">2. Biểu đồ Gantt Chart SVG & Đường Găng (CPM)</h3>
+                        <div style="flex: 1; overflow: auto; background: #070A13; border-radius: 8px;" id="gantt-svg-container">
+                            <!-- SVG Rendered dynamically -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SPECKLE 3D VISUALIZER SIMULATOR -->
+            <div class="glass-card simulator-section" style="margin-top: 2rem;">
+                <h2 class="title-font" style="font-size: 1.8rem; margin-bottom: 0.5rem; text-align: center;">🏢 Trình Xem Thử Nghiệm Tương Tác 3D BIM QS</h2>
+                <p style="color: var(--text-secondary); text-align: center; margin-bottom: 2rem; max-width: 800px; margin-left: auto; margin-right: auto;">
+                    Nhập chọn vào cấu kiện BIM 3D bên dưới để xem hệ thống JS Bridge đồng bộ ngược thuộc tính GUID và tính toán thể tích tiên lượng QS tức thời sang danh sách tiến độ WBS bên phải!
+                </p>
+
+                <div class="speckle-demo-box">
+                    <div class="speckle-scene" id="speckle-3d-scene">
+                        <div class="bim-element-mockup" id="bim-column-1" onclick="selectBimElement('bim-column-1', 'Cột C1 - Trục A-1', 4.8, 18.2, 3.6, 'c8a2d1e5-8f4b-4b2a-9e12-3a5c7e8d9f01')">Cột C1</div>
+                        <div class="bim-element-mockup" id="bim-beam-1" style="background: var(--accent-primary); margin-left: 20px;" onclick="selectBimElement('bim-beam-1', 'Dầm D1 - Nhịp 1-2', 3.2, 12.5, 6.0, 'a7c4f2e9-1b3d-4c5e-8f9a-2b3c4d5e6f7a')">Dầm D1</div>
+                        <div class="bim-element-mockup" id="bim-slab-1" style="background: var(--accent-success); margin-left: 20px;" onclick="selectBimElement('bim-slab-1', 'Sàn S1 - Tầng 1', 12.4, 45.0, 0.15, 'f4e2d3c1-b9a8-7f6e-5d4c-3b2a1f0e9d8c')">Sàn S1</div>
+                        <div style="position: absolute; bottom: 8px; left: 8px; color: var(--text-secondary); font-size: 0.75rem;">
+                            Speckle Canvas Simulator (3D WebGL Web-IFC Engine)
+                        </div>
+                    </div>
+                    <div class="speckle-props" id="speckle-properties-pane">
+                        <h4 class="title-font" style="color: var(--accent-secondary)">Bảng thuộc tính BIM</h4>
+                        <p style="font-size: 0.8rem; color: var(--text-secondary)">Chưa có cấu kiện nào được chọn. Nhấp vào các khối 3D bên trái để kiểm tra thuộc tính hình học.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 📖 TAB 2: ONLINE USER MANUAL -->
+        <div id="tab-manual" class="tab-panel">
+            <div class="wiki-header">
+                <div>
+                    <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem">Hướng Dẫn Sử Dụng Trực Tuyến</h1>
+                    <p style="color: var(--text-secondary)">Cẩm nang vận hành chi tiết tất cả các tính năng của YBIM TDTC Pro v0.2.0-01</p>
+                </div>
+            </div>
+            
+            <div class="wiki-grid">
+                <div class="wiki-sidebar">
+                    <button class="wiki-menu-item active" onclick="switchWikiChapter('ch-intro')">
+                        <i data-lucide="info"></i> 1. Giới thiệu chung
+                    </button>
+                    <button class="wiki-menu-item" onclick="switchWikiChapter('ch-cpm')">
+                        <i data-lucide="git-branch"></i> 2. Tiến độ & CPM
+                    </button>
+                    <button class="wiki-menu-item" onclick="switchWikiChapter('ch-resource')">
+                        <i data-lucide="users"></i> 3. Quản lý Tài nguyên
+                    </button>
+                    <button class="wiki-menu-item" onclick="switchWikiChapter('ch-ai')">
+                        <i data-lucide="zap"></i> 4. Động cơ tối ưu AI
+                    </button>
+                    <button class="wiki-menu-item" onclick="switchWikiChapter('ch-bim')">
+                        <i data-lucide="box"></i> 5. Tích hợp BIM 3D/5D
+                    </button>
+                    <button class="wiki-menu-item" onclick="switchWikiChapter('ch-interop')">
+                        <i data-lucide="refresh-cw"></i> 6. Kết nối AutoCAD & MSP
+                    </button>
+                </div>
+                
+                <div class="glass-card wiki-content markdown-body">
+                    <!-- Chapter 1: Intro -->
+                    <div id="chapter-ch-intro" class="wiki-chapter active">
+                        <h2>1. Giới thiệu phần mềm YBIM TDTC Pro</h2>
+                        <p><strong>YBIM TDTC (Yêu cầu BIM - Tiến Độ Thi Công)</strong> là phần mềm quản lý, mô phỏng và tối ưu hóa tiến độ thi công xây dựng tích hợp 3D BIM cao cấp chạy trực tiếp trên hệ điều hành Windows. Hệ thống được viết bằng C# .NET 8.0 WPF, tích hợp SkiaSharp cho hiệu năng vẽ vector Gantt mượt mà và nền tảng Speckle Cloud Platform.</p>
+                        
+                        <div class="callout-box tip">
+                            <div class="callout-title"><i data-lucide="check-circle"></i> Yêu cầu hệ thống tối thiểu</div>
+                            <p>Hệ điều hành Windows 10/11 x64, .NET Runtime 8.0 installed, màn hình độ phân giải tối thiểu 1366x768 (khuyên dùng Full HD 1920x1080 hoặc màn hình laptop 15.6 inch).</p>
+                        </div>
+                        
+                        <h3>1.1. Cấu trúc Giao diện chính</h3>
+                        <p>Giao diện YBIM TDTC được thiết kế theo phong cách Fluent Design của Microsoft gồm dải ruy-băng <strong>Ribbon Menu</strong> trên cùng chia thành hai tab:</p>
+                        <ul>
+                            <li><strong>Tab "Menu Task" (Tab 1):</strong> Hợp nhất toàn bộ các chức năng Tệp tin, Xuất/Nhập dữ liệu (MPP, Excel, P6, LISP, PDF, PPTX), Quản lý Baseline, Quản lý Tác vụ (Thêm, Xóa, Thụt dòng, Tiến tới, Liên kết) và các Checkbox bật tắt hiển thị đường găng, dự phòng.</li>
+                            <li><strong>Tab "Định dạng & Bar Style" (Tab 2):</strong> Gom toàn bộ công cụ định dạng chữ và đổi kiểu dáng, màu sắc các thanh biểu đồ Gantt cùng màu chủ đề.</li>
+                            <li><strong>Menu Tùy chọn (Backstage Options):</strong> Nơi cài đặt ngày nghỉ lễ, định dạng hiển thị ngày tháng, kích hoạt chế độ AutoSave và kiểm tra bản quyền.</li>
+                        </ul>
+                    </div>
+
+                    <!-- Chapter 2: CPM -->
+                    <div id="chapter-ch-cpm" class="wiki-chapter" style="display:none">
+                        <h2>2. Quản lý Tiến độ & Tính toán Đường Găng (CPM)</h2>
+                        <p>YBIM TDTC sử dụng thuật toán Sơ đồ mạng đường găng (Critical Path Method - CPM) để tự động tính toán tiến độ dự án từ cấu trúc phân cấp công việc WBS và mối quan hệ ràng buộc logic giữa các công tác.</p>
+                        
+                        <h3>2.1. Nhập liệu và thiết lập quan hệ tiền nhiệm</h3>
+                        <p>Kỹ sư nhập danh mục công tác trực tiếp trên TaskGrid. Cột <strong>Predecessors (Tiền nhiệm)</strong> hỗ trợ các kiểu mối quan hệ tiêu chuẩn:</p>
+                        <ul>
+                            <li><code>FS</code> (Finish-to-Start): Công tác sau bắt đầu khi công tác trước kết thúc (mặc định nếu không ghi rõ).</li>
+                            <li><code>SS</code> (Start-to-Start): Hai công tác cùng bắt đầu song song.</li>
+                            <li><code>FF</code> (Finish-to-Finish): Hai công tác phải hoàn thành cùng lúc.</li>
+                            <li><code>SF</code> (Start-to-Finish): Công tác sau kết thúc khi công tác trước bắt đầu.</li>
+                            <li><strong>Trễ ngày (Lag):</strong> Điền thêm khoảng trễ âm hoặc dương, ví dụ: <code>1FS+2d</code> (trễ 2 ngày), <code>3SS-1</code> (sớm trước 1 ngày).</li>
+                        </ul>
+
+                        <div class="callout-box warning">
+                            <div class="callout-title"><i data-lucide="alert-triangle"></i> Lỗi Vòng lặp (Circular Dependency)</div>
+                            <p>Thuật toán CPM sẽ tự động kiểm tra đồ thị chu trình không tuần hoàn (DAG). Nếu phát hiện vòng lặp (Ví dụ: Công tác A phụ thuộc B, B phụ thuộc C, C lại phụ thuộc A), hệ thống sẽ ném cảnh báo và từ chối tính toán để tránh treo phần mềm.</p>
+                        </div>
+                    </div>
+
+                    <!-- Chapter 3: Resource -->
+                    <div id="chapter-ch-resource" class="wiki-chapter" style="display:none">
+                        <h2>3. Quản lý Danh mục & Phân bổ Tài nguyên</h2>
+                        <p>Phần mềm hỗ trợ quản trị ba loại tài nguyên cốt lõi trong xây dựng: <strong>Labor (Nhân công)</strong>, <strong>Machinery (Máy thi công)</strong>, và <strong>Material (Vật tư)</strong>.</p>
+                        
+                        <h3>3.1. WorkGrid Chấm công & Copy-Paste</h3>
+                        <p>Phiên bản v0.2.0-01 giới thiệu lưới bảng chấm công thông minh mới thay thế hoàn toàn import CSV cũ:</p>
+                        <ul>
+                            <li>Kỹ sư có thể bôi đen nhiều ô (Multi-cell Selection) trực tiếp trên lưới.</li>
+                            <li>Bấm <code>Ctrl+C</code> trên Excel để copy mảng số liệu, sang YBIM bấm <code>Ctrl+V</code> để dán trực tiếp.</li>
+                            <li>Nếu bôi đen vùng rộng và dán một giá trị đơn, phần mềm tự điền đầy đủ toàn bộ vùng chọn.</li>
+                            <li><strong>Bảo toàn ô số 0:</strong> Thuật toán CPM đã được nâng cấp để tuyệt đối tôn trọng các ngày chấm công bằng 0 do kỹ sư chủ động nhập, không tự động điền đè thành 8.0 như bản cũ.</li>
+                        </ul>
+                    </div>
+
+                    <!-- Chapter 4: AI -->
+                    <div id="chapter-ch-ai" class="wiki-chapter" style="display:none">
+                        <h2>4. Động cơ tối ưu AI & Nén tiến độ (TCTO)</h2>
+                        <p>YBIM cung cấp hai giải thuật AI mạnh mẽ chạy trên tiến trình đa luồng ngầm an toàn:</p>
+                        
+                        <h3>4.1. San bằng tài nguyên bằng Thuật toán Di truyền (Genetic Algorithm)</h3>
+                        <p>Sử dụng thư viện GeneticSharp để điều phối tịnh tiến thời gian thi công của các công tác không găng nằm trong khoảng Slack nhằm làm phẳng đỉnh biểu đồ tài nguyên.</p>
+                        <p>Nhấp nút <strong>Tối ưu AI (Resource Leveling)</strong>, hệ thống tự động nhân bản sâu danh sách tác vụ để tránh tranh chấp bộ nhớ, sau đó khởi chạy 3 luồng GA song song đề xuất 3 phương án:</p>
+                        <ol>
+                            <li><strong>PA1 - Ưu tiên Máy thi công:</strong> Tập trung san bằng đỉnh máy móc cao điểm.</li>
+                            <li><strong>PA2 - Ưu tiên Nhân công:</strong> Tập trung kéo phẳng lượng nhân lực huy động.</li>
+                            <li><strong>PA3 - Ưu tiên Dòng tiền:</strong> Giãn tối đa công tác về sau để trì hoãn chi trả dòng tiền.</li>
+                        </ol>
+
+                        <h3>4.2. Động cơ nén tiến độ giảm chi phí (Greedy Crashing - TCTO)</h3>
+                        <p>Khi tiến độ bị chậm trễ, kỹ sư khai báo hai cột:</p>
+                        <ul>
+                            <li><code>Nén Mir (Crash Duration):</code> Giới hạn nén vật lý tối đa của công tác (số ngày thi công tối thiểu).</li>
+                            <li><code>Phí Nén ($/Ngày) (Crash Cost):</code> Giá phát sinh thêm cho mỗi ngày rút ngắn.</li>
+                        </ul>
+                        <p>Thuật toán Greedy Crashing tự động dò tìm các công tác trên đường găng (Critical Path) và nén từng ngày một của công tác có chi phí nén rẻ nhất trước, liên tục cập nhật CPM khi đường găng dịch chuyển, giúp nén tiến độ dự án với chi phí phát sinh nhỏ nhất.</p>
+                    </div>
+
+                    <!-- Chapter 5: BIM -->
+                    <div id="chapter-ch-bim" class="wiki-chapter" style="display:none">
+                        <h2>5. Tích hợp Mô hình 3D BIM & Tiên lượng QS Đám mây</h2>
+                        <p>YBIM TDTC Pro tích hợp trực tiếp **Speckle Cloud Platform** mang lại khả năng mô phỏng tiến độ 4D/5D trực tuyến vô cùng mạnh mẽ.</p>
+                        
+                        <h3>5.1. Đồng bộ hóa 2 chiều thời gian thực</h3>
+                        <ul>
+                            <li><strong>WBS sang 3D:</strong> Chọn công tác trên bảng WBS $\rightarrow$ Phần mềm gửi lệnh thông qua JS Bridge WebView2 để highlight đỏ rực cấu kiện BIM tương ứng trên màn hình Speckle Viewer, đồng thời bật chế độ X-Ray làm mờ xung quanh.</li>
+                            <li><strong>3D sang WBS:</strong> Kỹ sư nhấp chọn nhiều cấu kiện trên Speckle Viewer $\rightarrow$ Trình duyệt gửi ngược mảng GUIDs về luồng UI WPF $\rightarrow$ WPF tự động tìm và bôi đậm dòng công tác liên kết.</li>
+                        </ul>
+
+                        <h3>5.2. Bóc tách tiên lượng tự động (GraphQL & Smart Estimator)</h3>
+                        <p>Nhấp nút <strong>Bóc khối lượng (QS)</strong> trên cửa sổ BIM Viewer, hệ thống gửi truy vấn GraphQL bất đồng bộ lên máy chủ Speckle. Hàm đệ quy duyệt qua nút JSON phản hồi để cộng dồn <code>Thể tích (Concrete m³)</code>, <code>Diện tích (Formwork m²)</code>, và <code>Chiều dài (m)</code>.</p>
+                        <p><strong>Offline Estimator Fallback:</strong> Nếu mất mạng hoặc mô hình riêng tư, hệ thống tự động băm chuỗi GUID của cấu kiện thành giá trị ước tính vật lý vô cùng chân thực và logic, đảm bảo luồng nghiệp vụ QS không bị đứt gãy.</p>
+                    </div>
+
+                    <!-- Chapter 6: Interop -->
+                    <div id="chapter-ch-interop" class="wiki-chapter" style="display:none">
+                        <h2>6. Kết nối AutoCAD LISP & Microsoft Project & P6</h2>
+                        
+                        <h3>6.1. AutoCAD LISP Automatic Plot (`YBIMPLOT`)</h3>
+                        <p>YBIM xuất tệp tin LISP vẽ tiến độ Gantt và biểu đồ tài nguyên trên AutoCAD. Để in ấn khổ lớn:</p>
+                        <ol>
+                            <li>Mở AutoCAD, gõ lệnh <code>APPLOAD</code>, nạp file LISP mới xuất.</li>
+                            <li>Gõ lệnh <code>VETIENDO</code> để vẽ toàn bộ biểu đồ Gantt trên Model Space với Layer quy chuẩn.</li>
+                            <li>Gõ lệnh <code>YBIMPLOT</code> để tự động chia Gantt thành các trang in ấn nằm ngang vừa vặn khổ A3/A0/A1/A2. Layout tự động vẽ khung tên chuyên nghiệp chứa Tên dự án, tên tác giả Nguyễn Hoàng Y, email bản quyền và tự động khóa tỉ lệ Viewport (MVIEW Lock ON).</li>
+                        </ol>
+
+                        <h3>6.2. Primavera P6 Đám mây</h3>
+                        <p>Hỗ trợ nhập trực tiếp tệp tin định dạng <code>.xer</code> của Primavera P6 và xuất ngược dữ liệu tiến độ, tài nguyên ra tệp tin <code>.xer</code> hoặc <code>.xml</code> tương thích hoàn toàn 100%, kết nối thẳng sang các siêu dự án thực tế.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 💻 TAB 3: DEVELOPER PLAYBOOK -->
+        <div id="tab-technical" class="tab-panel">
+            <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem">Cẩm Nang Kỹ Thuật Lập Trình</h1>
+            <p style="color: var(--text-secondary); margin-bottom: 2rem">Phân tích sâu giải thuật cốt lõi và các quy chuẩn lập trình WPF / SkiaSharp / GeneticAlgorithm của dự án</p>
+            
+            <div class="wiki-grid">
+                <div class="wiki-sidebar">
+                    <button class="wiki-menu-item active" onclick="switchTechChapter('tech-ga')">
+                        <i data-lucide="code"></i> Giải thuật Di truyền (GA)
+                    </button>
+                    <button class="wiki-menu-item" onclick="switchTechChapter('tech-skia')">
+                        <i data-lucide="image"></i> SkiaSharp & Frozen Timescale
+                    </button>
+                    <button class="wiki-menu-item" onclick="switchTechChapter('tech-pdf')">
+                        <i data-lucide="file-text"></i> QuestPDF Vector & Label Fix
+                    </button>
+                    <button class="wiki-menu-item" onclick="switchTechChapter('tech-ui')">
+                        <i data-lucide="palette"></i> Dynamic Theme & Chrome
+                    </button>
+                </div>
+                
+                <div class="glass-card wiki-content markdown-body">
+                    <!-- Tech GA -->
+                    <div id="tech-chapter-tech-ga" class="tech-chapter active">
+                        <h2>Giải thuật Di truyền & TCTO trong tối ưu hóa tiến độ</h2>
+                        <p>Phần mềm sử dụng mô hình mã hóa NST (Chromosome) tùy biến. Mỗi Gen đại diện cho <code>Thời gian trễ (delay)</code> của một công tác không găng.</p>
+                        
+                        <h3>Tối ưu hàm Fitness chạy hàng chục ngàn lần:</h3>
+                        <div class="code-block">
+                            <button class="btn-copy" onclick="copyCode(this)">Copy</button>
+                            <pre>
+// Cẩm nang tối ưu Fitness cực kỳ chuyên sâu từ Work_Skill.md
+public double Evaluate(IChromosome chromosome)
+{
+    var representation = chromosome as FloatingPointChromosome;
+    var delays = representation.ToFloatingPoints();
+    
+    // 1. Dùng Dictionary pre-computed thay vì IndexOf chạy O(N) trong vòng lặp
+    // 2. Sử dụng mảng tĩnh double[] thay vì List để tránh cấp phát bộ nhớ liên tục
+    double[] dailyAllocation = new double[totalProjectDays + 200]; // Thêm đệm an toàn
+    
+    for(int i = 0; i < taskCount; i++) {
+        int actualStart = baseStarts[i] + (int)delays[i];
+        // Tính toán phân bổ tài nguyên...
+    }
+    
+    // Tính toán độ biến thiên (Variance) của biểu đồ tài nguyên
+    double variance = CalculateVariance(dailyAllocation);
+    return 1.0 / (variance + 0.001); // Tránh chia cho không
+}</pre>
+                        </div>
+
+                        <h3>Giải thuật Greedy Crashing (TCTO):</h3>
+                        <p>Được thực thi đệ quy. Thuật toán tìm tập hợp các công tác trên đường găng (Critical Path). Lọc ra các công tác có khả năng nén <code>Duration > CrashDuration</code>, sau đó tìm công tác có <code>CrashCost</code> nhỏ nhất và nén xuống 1 ngày. Chạy lại CPM để cập nhật đường găng mới và lặp lại cho đến khi đạt mục tiêu hoặc không thể nén thêm.</p>
+                    </div>
+
+                    <!-- Tech Skia -->
+                    <div id="tech-chapter-tech-skia" class="tech-chapter" style="display:none">
+                        <h2>SkiaSharp Lazy Rendering & Frozen Timescale</h2>
+                        <p>Biểu đồ Gantt sử dụng SkiaSharp canvas trong WPF. Khi cuộn dọc danh sách hàng ngàn công tác, Lazy Rendering chỉ vẽ những gì nằm trong Viewport hiển thị.</p>
+                        
+                        <h3>Thuật toán tính toán Viewport:</h3>
+                        <div class="code-block">
+                            <button class="btn-copy" onclick="copyCode(this)">Copy</button>
+                            <pre>
+float viewportTop = (float)GanttScrollViewer.VerticalOffset * dpi;
+float viewportHeight = (float)GanttScrollViewer.ViewportHeight * dpi;
+float viewportBottom = viewportTop + viewportHeight;
+
+// Trong vòng lặp vẽ công tác:
+if (rowTop + rowHeight < viewportTop - 100f * dpi || rowTop > viewportBottom + 100f * dpi) {
+    continue; // Bỏ qua không vẽ để giải phóng GPU/CPU
+}</pre>
+                        </div>
+
+                        <h3>Frozen Timescale (Cố định trục thời gian):</h3>
+                        <p>Trục thời gian được vẽ ở <strong>Pha 3 (Sticky Overlay)</strong> sau khi vẽ lưới và các thanh Gantt Bar. Tọa độ Y của trục thời gian được cộng thêm độ lệch cuộn dọc <code>yOffset = VerticalOffset * dpi</code>. Sử dụng đối tượng <code>SKRect</code> để cố định chiều cao đúng bằng <code>headerHeight</code>, sửa triệt để lỗi che khuất biểu đồ của hàm DrawRect cũ khi cuộn dọc.</p>
+                    </div>
+
+                    <!-- Tech PDF -->
+                    <div id="tech-chapter-tech-pdf" class="tech-chapter" style="display:none">
+                        <h2>QuestPDF Vector PDF Engine & Sửa lỗi đè nhãn</h2>
+                        <p>QuestPDF sinh báo cáo chất lượng Vector HD siêu nét. Tuy nhiên, khi một công tác bắt đầu sát mép trái biểu đồ, nhãn ngày bắt đầu vẽ canh lề phải (`SKTextAlign.Right`) sẽ lấn qua trái đè lên cột thời gian của bảng biểu.</p>
+                        
+                        <h3>Thuật toán đo và ngăn ngừa chồng đè nhãn:</h3>
+                        <div class="code-block">
+                            <button class="btn-copy" onclick="copyCode(this)">Copy</button>
+                            <pre>
+// Đo chiều rộng chuỗi động bằng SkiaSharp trước khi vẽ
+float textW = textLabelPaint.MeasureText(startText);
+float leftEdge = (xStart - startOffset - 4f * dpi) - textW;
+
+// Thêm điều kiện kiểm tra biên toán học
+if (xStart - startOffset - textW - 4f * dpi >= tableWidth)
+{
+    textLabelPaint.TextAlign = SKTextAlign.Right;
+    canvas.DrawText(startText, xStart - startOffset - 4f * dpi, curY + curH - 2 * dpi, textLabelPaint);
+}
+// Nếu không đủ chỗ vẽ, hệ thống tự ẩn nhãn ngày bắt đầu hoặc dịch chuyển an toàn!</pre>
+                        </div>
+                    </div>
+
+                    <!-- Tech UI -->
+                    <div id="tech-chapter-tech-ui" class="tech-chapter" style="display:none">
+                        <h2>Đồng bộ Fluent Theme & Custom Control Template</h2>
+                        <p>WPF Ribbon mặc định không tự động đổi màu thanh tiêu đề Windows Chrome và dải Ribbon Header khi người dùng đổi file ResourceDictionary sang Dark Mode, dẫn đến chữ tiêu đề màu trắng bị tàng hình trên nền Chrome trắng.</p>
+                        
+                        <h3>Tích hợp ControlzEx ThemeManager:</h3>
+                        <div class="code-block">
+                            <button class="btn-copy" onclick="copyCode(this)">Copy</button>
+                            <pre>
+// Ép đổi màu Window Chrome đồng bộ theo màu chủ đề nội bộ
+ControlzEx.Theming.ThemeManager.Current.ChangeTheme(this, isDarkMode ? "Dark.Amber" : "Light.Violet");</pre>
+                        </div>
+
+                        <h3>Định dạng Custom ComboBox Template:</h3>
+                        <p>Thiết kế lại <code>ControlTemplate</code> của ComboBox trong Options Window, liên kết màu nền của <code>ToggleButton</code> và <code>Popup</code> với tài nguyên màu động <code>{DynamicResource Y_SurfaceBackground}</code> để chữ không bị chìm nền trắng khi bật Dark Mode của Windows.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 🛰️ TAB 4: GITHUB INTEGRATION GUIDE (PAGES, DISCUSSIONS, WIKI) -->
+        <div id="tab-github-setup" class="tab-panel">
+            <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem">Tích Hợp Hệ Sinh Thái GitHub</h1>
+            <p style="color: var(--text-secondary); margin-bottom: 2rem">Hướng dẫn kích hoạt GitHub Pages, GitHub Wiki, và GitHub Discussions cho kho lưu trữ dự án `YBIM-sketch/YBIM_TDTC` của bạn</p>
+            
+            <div class="glass-card" style="padding: 2.5rem; display: flex; flex-direction: column; gap: 2rem;">
+                
+                <!-- Section 1: GitHub Pages -->
+                <div>
+                    <h2 class="title-font" style="color: var(--accent-secondary); font-size: 1.6rem; display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
+                        <i data-lucide="globe"></i> 1. Kích hoạt GitHub Pages (Cổng thông tin trực tuyến)
+                    </h2>
+                    <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                        Trang web mà bạn đang xem hiện tại chính là giao diện hoàn hảo được thiết kế cho **GitHub Pages**. Để xuất bản trang web này lên internet phục vụ khách hàng và cộng đồng, hãy làm theo các bước sau:
+                    </p>
+                    <ol style="margin-left: 2rem; color: var(--text-secondary); display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1rem;">
+                        <li>Đẩy toàn bộ thư mục <code>docs</code> hiện tại của dự án lên nhánh chính (ví dụ: <code>main</code>) của kho lưu trữ GitHub của bạn.</li>
+                        <li>Truy cập vào kho lưu trữ của bạn trên GitHub: <a href="https://github.com/YBIM-sketch/YBIM_TDTC" target="_blank" style="color: var(--accent-secondary)">github.com/YBIM-sketch/YBIM_TDTC</a>.</li>
+                        <li>Nhấp vào tab <strong>Settings</strong> ở góc trên bên phải thanh công cụ.</li>
+                        <li>Ở thanh menu bên trái, nhấp vào mục <strong>Pages</strong> (nằm trong phần Code and automation).</li>
+                        <li>Tại phần <strong>Build and deployment</strong>, mục <em>Source</em> chọn <strong>Deploy from a branch</strong>.</li>
+                        <li>Mục <em>Branch</em>, chọn nhánh của bạn (ví dụ: <code>main</code> hoặc <code>master</code>) và chọn thư mục <strong>/docs</strong> thay vì <em>/ (root)</em>.</li>
+                        <li>Nhấp nút <strong>Save</strong>. Sau 1-2 phút, GitHub sẽ tự động biên dịch và cung cấp đường link website chính thức của bạn dạng: <code>https://ybim-sketch.github.io/YBIM_TDTC/</code>!</li>
+                    </ol>
+                </div>
+
+                <hr style="border-color: var(--border-color)">
+
+                <!-- Section 2: GitHub Wiki -->
+                <div>
+                    <h2 class="title-font" style="color: var(--accent-primary); font-size: 1.6rem; display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
+                        <i data-lucide="book"></i> 2. Thiết lập GitHub Wiki (Tài liệu kỹ thuật chuyên nghiệp)
+                    </h2>
+                    <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                        GitHub Wiki là một kho lưu trữ Git thứ hai đi kèm dự án của bạn (đường dẫn dạng <code>.wiki.git</code>). Để thiết lập tài liệu hướng dẫn sử dụng và cẩm nang kỹ thuật cực kỳ đẹp mắt lên GitHub Wiki:
+                    </p>
+                    <ol style="margin-left: 2rem; color: var(--text-secondary); display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1.5rem;">
+                        <li>Truy cập tab <strong>Wiki</strong> của kho lưu trữ trên web GitHub.</li>
+                        <li>Nhấp vào nút <strong>Create the first page</strong>. Viết tiêu đề trang đầu tiên là <code>Home</code>, sau đó nhấn <strong>Save Page</strong>. Việc này sẽ khởi tạo kho lưu trữ Wiki.</li>
+                        <li>Bây giờ bạn có thể clone kho lưu trữ Wiki về máy tính để thêm hàng loạt tài liệu bằng dòng lệnh:</li>
+                    </ol>
+                    
+                    <div class="code-block">
+                        <button class="btn-copy" onclick="copyCode(this)">Copy</button>
+                        <pre>
+# Clone kho lưu trữ Wiki của bạn về máy
+git clone https://github.com/YBIM-sketch/YBIM_TDTC.wiki.git
+
+# Sao chép các tệp hướng dẫn sử dụng và kỹ thuật vào thư mục Wiki mới clone
+# Huong_Dan_Su_Dung_YBIM_TDTC.md -> đặt tên thành Huong-Dan-Su-Dung.md
+# Work_Skill.md -> đặt tên thành Cam-Nang-Ky-Thuat.md
+
+# Đẩy tài liệu lên GitHub Wiki
+git add .
+git commit -m "Add YBIM TDTC v0.2.0-01 comprehensive documentation"
+git push origin master</pre>
+                    </div>
+                </div>
+
+                <hr style="border-color: var(--border-color)">
+
+                <!-- Section 3: GitHub Discussions -->
+                <div>
+                    <h2 class="title-font" style="color: var(--accent-success); font-size: 1.6rem; display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
+                        <i data-lucide="messages-square"></i> 3. Kích hoạt GitHub Discussions (Cộng đồng thảo luận & Zalo Support)
+                    </h2>
+                    <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                        Discussions là nơi hoàn hảo để người dùng báo lỗi, đề xuất tính năng (Feature Request) hoặc hỏi đáp về cách kết nối AutoCAD/Excel song ngữ.
+                    </p>
+                    <ol style="margin-left: 2rem; color: var(--text-secondary); display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1rem;">
+                        <li>Truy cập vào <strong>Settings</strong> của kho lưu trữ trên web GitHub.</li>
+                        <li>Tại tab <em>General</em>, cuộn xuống phần <strong>Features</strong>.</li>
+                        <li>Tích chọn vào ô <strong>Discussions</strong>. GitHub sẽ tự động tạo một tab Discussions mới trên thanh công cụ chính của kho lưu trữ.</li>
+                        <li>Nhấp vào tab <strong>Discussions</strong> vừa được tạo, chọn **Set up discussions**.</li>
+                        <li>Bạn nên tạo các danh mục thảo luận chuẩn hóa sau để hướng dẫn người dùng chuyên nghiệp:
+                            <ul>
+                                <li>📢 <strong>Announcements (Thông báo):</strong> Để giới thiệu các bản cập nhật phiên bản mới như v0.2.0-01.</li>
+                                <li>💡 <strong>Ideas (Đề xuất ý tưởng):</strong> Nơi người dùng đóng góp các ý kiến cải tiến thuật toán AI / Speckle 3D.</li>
+                                <li>💬 <strong>Q&A (Hỏi & Đáp):</strong> Nơi giải đáp các vướng mắc về bản quyền, lỗi nạp LISP AutoCAD.</li>
+                                <li>🐛 <strong>Bug Reports (Báo lỗi):</strong> Nơi kỹ sư chụp ảnh màn hình phản hồi các lỗi crash phần mềm.</li>
+                            </ul>
+                        </li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-container">
+            <div class="footer-text">
+                <p>© 2026 YBIM TDTC. Phát hành bởi kỹ sư Nguyễn Hoàng Y dưới giấy phép MIT.</p>
+                <p style="font-size: 0.8rem; margin-top: 0.25rem; color: var(--text-secondary)">Tài liệu và mã nguồn được cập nhật ngày 27/05/2026 cho phiên bản v0.2.0-01 PRO.</p>
+            </div>
+            <div class="footer-socials">
+                <a href="https://zalo.me/0917433147" target="_blank" class="social-link">
+                    <i data-lucide="phone"></i> Zalo Support
+                </a>
+                <a href="mailto:hoangy.dgbo.k52@gmail.com" class="social-link">
+                    <i data-lucide="mail"></i> Email liên hệ
+                </a>
+                <a href="https://youtube.com/@Nguyen_Hoang_Y" target="_blank" class="social-link">
+                    <i data-lucide="youtube"></i> YouTube Channel
+                </a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Core Interactive Logic Script -->
+    <script>
+        // Initialize Lucide Icons
+        lucide.createIcons();
+
+        // 1. Theme Management
+        function toggleTheme() {
+            const html = document.documentElement;
+            const sunIcon = document.getElementById('sun-icon');
+            const moonIcon = document.getElementById('moon-icon');
+            
+            if (html.classList.contains('light-mode')) {
+                html.classList.remove('light-mode');
+                sunIcon.style.display = 'none';
+                moonIcon.style.display = 'block';
+                localStorage.setItem('theme', 'dark');
+            } else {
+                html.classList.add('light-mode');
+                sunIcon.style.display = 'block';
+                moonIcon.style.display = 'none';
+                localStorage.setItem('theme', 'light');
+            }
+        }
+
+        // Apply saved theme
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'light') {
+            document.documentElement.classList.add('light-mode');
+            document.getElementById('sun-icon').style.display = 'block';
+            document.getElementById('moon-icon').style.display = 'none';
+        }
+
+        // 2. Tab Navigation
+        function switchTab(tabId) {
+            // Hide all tab panels
+            document.querySelectorAll('.tab-panel').forEach(panel => {
+                panel.classList.remove('active');
+            });
+            // Show selected tab panel
+            document.getElementById(`tab-${tabId}`).classList.add('active');
+            
+            // Update active state on buttons
+            document.querySelectorAll('.nav-links .nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.currentTarget.classList.add('active');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // 3. Documentation Sub-Chapters navigation
+        function switchWikiChapter(chapterId) {
+            document.querySelectorAll('.wiki-chapter').forEach(ch => {
+                ch.style.display = 'none';
+                ch.classList.remove('active');
+            });
+            document.getElementById(`chapter-${chapterId}`).style.display = 'block';
+            setTimeout(() => {
+                document.getElementById(`chapter-${chapterId}`).classList.add('active');
+            }, 50);
+
+            document.querySelectorAll('.wiki-sidebar .wiki-menu-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            event.currentTarget.classList.add('active');
+        }
+
+        function switchTechChapter(chapterId) {
+            document.querySelectorAll('.tech-chapter').forEach(ch => {
+                ch.style.display = 'none';
+                ch.classList.remove('active');
+            });
+            document.getElementById(`tech-chapter-${chapterId}`).style.display = 'block';
+            setTimeout(() => {
+                document.getElementById(`tech-chapter-${chapterId}`).classList.add('active');
+            }, 50);
+
+            document.querySelectorAll('#tab-technical .wiki-sidebar .wiki-menu-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            event.currentTarget.classList.add('active');
+        }
+
+        // 4. Code copy button
+        function copyCode(btn) {
+            const code = btn.nextElementSibling.innerText;
+            navigator.clipboard.writeText(code).then(() => {
+                btn.innerText = 'Copied!';
+                btn.style.color = '#10B981';
+                setTimeout(() => {
+                    btn.innerText = 'Copy';
+                    btn.style.color = '';
+                }, 2000);
+            });
+        }
+
+        // 5. speckle mock Visualizer click
+        function selectBimElement(id, name, vol, area, len, guid) {
+            document.querySelectorAll('.bim-element-mockup').forEach(el => {
+                el.classList.remove('selected');
+            });
+            document.getElementById(id).classList.add('selected');
+
+            // Compute price standard 1,250,000 VND/m3
+            const cost = vol * 1250000;
+            const formattedCost = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(cost);
+
+            const pane = document.getElementById('speckle-properties-pane');
+            pane.innerHTML = `
+                <h4 class="title-font" style="color: var(--accent-danger); display: flex; align-items: center; gap: 0.5rem">
+                    <i data-lucide="check-square"></i> Cấu kiện được chọn
+                </h4>
+                <div style="background: rgba(255,255,255,0.05); padding: 0.75rem; border-radius: 8px; font-size: 0.85rem; display: flex; flex-direction: column; gap: 0.4rem; margin-top: 0.5rem">
+                    <p><strong>Tên cấu kiện:</strong> ${name}</p>
+                    <p><strong>GUID (BimGuid):</strong> <code style="color: var(--accent-secondary); font-size: 0.75rem;">${guid}</code></p>
+                    <p><strong>Thể tích (m³):</strong> ${vol} m³</p>
+                    <p><strong>Diện tích (m²):</strong> ${area} m²</p>
+                    <p><strong>Chiều dài (m):</strong> ${len} m</p>
+                    <hr style="border-color: var(--border-color); margin: 0.3rem 0;">
+                    <p style="color: var(--accent-success); font-weight: bold;">
+                        <strong>Giá trị dự toán ước tính:</strong> ${formattedCost}
+                    </p>
+                </div>
+                <div style="margin-top: 0.5rem; padding: 0.5rem; background: rgba(16,185,129,0.1); border: 1px solid var(--accent-success); border-radius: 8px; font-size: 0.8rem; color: var(--accent-success)">
+                    ⚡ <strong>JS Bridge log:</strong> Đã gửi mảng <code>["${guid}"]</code> sang WPF TasksGrid. Dòng công tác tương ứng đã được highlight tự động!
+                </div>
+            `;
+            lucide.createIcons();
+        }
+
+        // 6. CPM ALGORITHM SIMULATOR
+        // Default tasks database
+        let tasks = [
+            { id: 1, name: "Khảo sát & Nhận mặt bằng", duration: 3, preds: [], es: 0, ef: 0, ls: 0, lf: 0, slack: 0, isCritical: false },
+            { id: 2, name: "Đào đất hố móng dầm sàn", duration: 5, preds: [1], es: 0, ef: 0, ls: 0, lf: 0, slack: 0, isCritical: false },
+            { id: 3, name: "Thi công bê tông lót móng", duration: 2, preds: [2], es: 0, ef: 0, ls: 0, lf: 0, slack: 0, isCritical: false },
+            { id: 4, name: "Gia công lắp dựng cốt thép", duration: 4, preds: [3], es: 0, ef: 0, ls: 0, lf: 0, slack: 0, isCritical: false },
+            { id: 5, name: "Lắp đặt ván khuôn móng", duration: 3, preds: [3], es: 0, ef: 0, ls: 0, lf: 0, slack: 0, isCritical: false },
+            { id: 6, name: "Đổ bê tông hố móng", duration: 2, preds: [4, 5], es: 0, ef: 0, ls: 0, lf: 0, slack: 0, isCritical: false }
+        ];
+
+        function calculateCPM() {
+            let n = tasks.length;
+            if (n === 0) return;
+
+            // Sort tasks topologically or resolve dependencies in multiple passes.
+            // Simplified CPM Multi-Pass Solver:
+            
+            // Reset dates
+            tasks.forEach(t => {
+                t.es = 0; t.ef = 0; t.ls = 999; t.lf = 999; t.slack = 0; t.isCritical = false;
+            });
+
+            // 1. Forward Pass (Calculate Early Start / Early Finish)
+            let changed = true;
+            let iterations = 0;
+            while (changed && iterations < 100) {
+                changed = false;
+                iterations++;
+                
+                for (let i = 0; i < n; i++) {
+                    let task = tasks[i];
+                    let maxPredEf = 0;
+                    
+                    if (task.preds.length > 0) {
+                        task.preds.forEach(predId => {
+                            let pred = tasks.find(t => t.id === predId);
+                            if (pred) {
+                                if (pred.ef > maxPredEf) {
+                                    maxPredEf = pred.ef;
+                                }
+                            }
+                        });
+                    }
+                    
+                    let newEs = maxPredEf;
+                    let newEf = newEs + task.duration;
+                    
+                    if (newEs !== task.es || newEf !== task.ef) {
+                        task.es = newEs;
+                        task.ef = newEf;
+                        changed = true;
+                    }
+                }
+            }
+
+            // Find project complete date (Max EF)
+            let projectDuration = Math.max(...tasks.map(t => t.ef));
+
+            // 2. Backward Pass (Calculate Late Start / Late Finish)
+            tasks.forEach(t => {
+                t.lf = projectDuration;
+                t.ls = projectDuration - t.duration;
+            });
+
+            changed = true;
+            iterations = 0;
+            while (changed && iterations < 100) {
+                changed = false;
+                iterations++;
+                
+                for (let i = 0; i < n; i++) {
+                    let task = tasks[i];
+                    
+                    // Find all successor tasks that depend on this one
+                    let successors = tasks.filter(t => t.preds.includes(task.id));
+                    
+                    if (successors.length > 0) {
+                        let minSuccLs = Math.min(...successors.map(s => s.ls));
+                        let newLf = minSuccLs;
+                        let newLs = newLf - task.duration;
+                        
+                        if (newLf !== task.lf || newLs !== task.ls) {
+                            task.lf = newLf;
+                            task.ls = newLs;
+                            changed = true;
+                        }
+                    }
+                }
+            }
+
+            // 3. Calculate Slack & Critical Path
+            tasks.forEach(t => {
+                t.slack = t.lf - t.ef;
+                if (t.slack <= 0) {
+                    t.slack = 0;
+                    t.isCritical = true;
+                } else {
+                    t.isCritical = false;
+                }
+            });
+
+            // Re-render table and SVG
+            renderSimTable();
+            renderSimGantt(projectDuration);
+        }
+
+        function renderSimTable() {
+            const tbody = document.getElementById('sim-task-tbody');
+            tbody.innerHTML = '';
+            
+            tasks.forEach(t => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><strong>${t.id}</strong></td>
+                    <td>${t.name}</td>
+                    <td>${t.duration}d</td>
+                    <td>${t.preds.length > 0 ? t.preds.join(', ') : '-'}</td>
+                    <td>${t.slack}d</td>
+                    <td>
+                        <span class="${t.isCritical ? 'critical-badge' : 'non-critical-badge'}">
+                            ${t.isCritical ? 'Đường Găng' : 'Tự do'}
+                        </span>
+                    </td>
+                    <td>
+                        <button class="btn-del-task" onclick="deleteSimTask(${t.id})" title="Xóa">
+                            <i data-lucide="trash-2" style="width: 14px; height: 14px;"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+            lucide.createIcons();
+        }
+
+        function renderSimGantt(totalDays) {
+            const container = document.getElementById('gantt-svg-container');
+            if (totalDays <= 0) totalDays = 20;
+
+            const scale = 25; // Pixels per day
+            const rowHeight = 40;
+            const headerHeight = 35;
+            const tableWidth = 150;
+            const chartWidth = totalDays * scale + 100;
+            const svgWidth = tableWidth + chartWidth;
+            const svgHeight = headerHeight + tasks.length * rowHeight + 20;
+
+            let svg = `<svg width="${svgWidth}" height="${svgHeight}" style="background: #090D16; color: white;">`;
+
+            // Draw Header Days Grid
+            svg += `<rect x="0" y="0" width="${svgWidth}" height="${headerHeight}" fill="#111827" stroke="rgba(255,255,255,0.05)"/>`;
+            svg += `<text x="10" y="22" font-family="Outfit" font-size="12" fill="#9CA3AF" font-weight="bold">Danh sách việc</text>`;
+            
+            for (let d = 0; d <= totalDays; d++) {
+                let x = tableWidth + d * scale;
+                svg += `<line x1="${x}" y1="0" x2="${x}" y2="${svgHeight}" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>`;
+                svg += `<text x="${x + 5}" y="22" font-family="Inter" font-size="10" fill="#9CA3AF">N${d}</text>`;
+            }
+
+            // Draw Tasks
+            tasks.forEach((t, i) => {
+                let y = headerHeight + i * rowHeight;
+                
+                // Draw Row Alternating shading
+                if (i % 2 === 0) {
+                    svg += `<rect x="0" y="${y}" width="${svgWidth}" height="${rowHeight}" fill="rgba(255,255,255,0.01)"/>`;
+                }
+                svg += `<line x1="0" y1="${y + rowHeight}" x2="${svgWidth}" y2="${y + rowHeight}" stroke="rgba(255,255,255,0.03)"/>`;
+
+                // Draw Task Name text
+                svg += `<text x="10" y="${y + 24}" font-family="Inter" font-size="11" fill="white" font-weight="bold">${t.id}. ${t.name.substring(0, 18)}${t.name.length > 18 ? '...' : ''}</text>`;
+
+                // Draw Slack bar (Yellow dashes)
+                if (t.slack > 0) {
+                    let slackX = tableWidth + t.ef * scale;
+                    let slackW = t.slack * scale;
+                    svg += `<rect x="${slackX}" y="${y + 12}" width="${slackW}" height="14" fill="rgba(245, 158, 11, 0.15)" stroke="var(--accent-warning)" stroke-width="1" stroke-dasharray="3,3" rx="3"/>`;
+                }
+
+                // Draw Task bar (Red if critical, Violet if not)
+                let barX = tableWidth + t.es * scale;
+                let barW = t.duration * scale;
+                let barColor = t.isCritical ? 'var(--accent-danger)' : 'var(--accent-primary)';
+                let glowFilter = t.isCritical ? 'filter: drop-shadow(0 0 4px rgba(239, 68, 68, 0.5))' : '';
+
+                svg += `<rect x="${barX}" y="${y + 10}" width="${barW}" height="18" fill="${barColor}" rx="4" style="${glowFilter}"/>`;
+                
+                // Draw duration text inside or next to the bar
+                svg += `<text x="${barX + 5}" y="${y + 23}" font-family="Inter" font-size="9" fill="white" font-weight="bold">${t.duration}d</text>`;
+            });
+
+            svg += `</svg>`;
+            container.innerHTML = svg;
+        }
+
+        function addNewSimTask() {
+            const nameInput = document.getElementById('sim-task-name');
+            const durInput = document.getElementById('sim-task-duration');
+            const predsInput = document.getElementById('sim-task-preds');
+
+            const name = nameInput.value.trim();
+            const duration = parseInt(durInput.value);
+            
+            if (name === '' || isNaN(duration) || duration <= 0) {
+                alert('Vui lòng nhập tên công tác và thời gian hợp lệ!');
+                return;
+            }
+
+            // Parse predecessors
+            let preds = [];
+            if (predsInput.value.trim() !== '') {
+                preds = predsInput.value.split(',').map(s => parseInt(s.trim())).filter(num => !isNaN(num));
+            }
+
+            // Generate new ID
+            const newId = tasks.length > 0 ? Math.max(...tasks.map(t => t.id)) + 1 : 1;
+
+            tasks.push({
+                id: newId,
+                name: name,
+                duration: duration,
+                preds: preds,
+                es: 0, ef: 0, ls: 0, lf: 0, slack: 0, isCritical: false
+            });
+
+            // Reset input values
+            nameInput.value = 'Lắp dựng cốt thép cột Tầng 2';
+            durInput.value = '3';
+            predsInput.value = newId;
+
+            calculateCPM();
+        }
+
+        function deleteSimTask(id) {
+            tasks = tasks.filter(t => t.id !== id);
+            // Clean up deleted tasks from predecessors of other tasks
+            tasks.forEach(t => {
+                t.preds = t.preds.filter(pId => pId !== id);
+            });
+            calculateCPM();
+        }
+
+        // Run default CPM calculation on page load
+        calculateCPM();
+    </script>
+</body>
+</html>
